@@ -2,6 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using FlitBit.Core;
+using FlitBit.Core.Factory;
+using FlitBit.Dapper;
 using FlitBit.IoC;
 using FlitBit.IoC.Meta;
 
@@ -47,6 +50,8 @@ namespace Dapper
         private readonly List<FieldInfo> _fields;
         private readonly List<PropertyInfo> _properties;
         private readonly Type _type;
+        private readonly IFactory _factory;
+
 
         /// <summary>
         /// Creates default type map
@@ -60,6 +65,8 @@ namespace Dapper
             _fields = GetSettableFields(type);
             _properties = GetSettableProps(type);
             _type = type;
+
+            _factory = FactoryProvider.Factory;
         }
 
         internal static MethodInfo GetPropertySetter(PropertyInfo propertyInfo, Type type)
@@ -90,7 +97,7 @@ namespace Dapper
         /// <returns>Matching constructor or default one</returns>
         public ConstructorInfo FindConstructor(string[] names, Type[] types)
         {
-            var constructors = _type.GetConstructors(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            var constructors = GetConstructorInfoFromType(_type);
             foreach (ConstructorInfo ctor in constructors.OrderBy(c => c.IsPublic ? 0 : (c.IsPrivate ? 2 : 1)).ThenBy(c => c.GetParameters().Length))
             {
                 ParameterInfo[] ctorParameters = ctor.GetParameters();
@@ -121,6 +128,11 @@ namespace Dapper
             return null;
         }
 
+        IEnumerable<ConstructorInfo> GetConstructorInfoFromType(Type type)
+        {
+            return _factory.GetImplementationType(type).GetConstructors(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+        }
+
         /// <summary>
         /// Gets mapping for constructor parameter
         /// </summary>
@@ -140,19 +152,47 @@ namespace Dapper
         /// <returns>Mapping implementation</returns>
         public IMemberMap GetMember(string columnName)
         {
-            var property = _properties.FirstOrDefault(p => string.Equals(p.Name, columnName, StringComparison.Ordinal))
-                           ?? _properties.FirstOrDefault(p => string.Equals(p.Name, columnName, StringComparison.OrdinalIgnoreCase));
-
+            var property = GetPropertyInfoByColumnName(columnName);
             if (property != null)
                 return new SimpleMemberMap(columnName, property);
 
-            var field = _fields.FirstOrDefault(p => string.Equals(p.Name, columnName, StringComparison.Ordinal))
-                        ?? _fields.FirstOrDefault(p => string.Equals(p.Name, columnName, StringComparison.OrdinalIgnoreCase));
-
+            var field = GetFieldInfoByColumnName(columnName);
             if (field != null)
                 return new SimpleMemberMap(columnName, field);
 
             return null;
+        }
+
+        PropertyInfo GetPropertyInfoByColumnName(string columnName)
+        {
+            var property = _properties.FirstOrDefault(p => string.Equals(p.Name, columnName, StringComparison.Ordinal))
+                          ?? _properties.FirstOrDefault(p => string.Equals(p.Name, columnName, StringComparison.OrdinalIgnoreCase));
+
+            // Is Column C# cased?
+            if (property == null)
+            {
+                var name = columnName.ToCamelCase();
+                property = _properties.FirstOrDefault(p => string.Equals(p.Name, name, StringComparison.Ordinal))
+                          ?? _properties.FirstOrDefault(p => string.Equals(p.Name, name, StringComparison.OrdinalIgnoreCase));
+            }
+
+            return property;
+        }
+
+        FieldInfo GetFieldInfoByColumnName(string columnName)
+        {
+            var field = _fields.FirstOrDefault(p => string.Equals(p.Name, columnName, StringComparison.Ordinal))
+                       ?? _fields.FirstOrDefault(p => string.Equals(p.Name, columnName, StringComparison.OrdinalIgnoreCase));
+
+            // Is Column C# cased?
+            if (field == null)
+            {
+                var name = columnName.ToCamelCase();
+                field = _fields.FirstOrDefault(p => string.Equals(p.Name, name, StringComparison.Ordinal))
+                          ?? _fields.FirstOrDefault(p => string.Equals(p.Name, name, StringComparison.OrdinalIgnoreCase));
+            }
+
+            return field;
         }
     }
 }
