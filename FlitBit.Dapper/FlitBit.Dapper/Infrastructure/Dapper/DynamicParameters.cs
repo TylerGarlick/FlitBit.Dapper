@@ -7,14 +7,28 @@ using FlitBit.IoC.Meta;
 
 namespace Dapper
 {
+
+	/// <summary>
+	/// Implement this interface to pass an arbitrary db specific set of parameters to Dapper
+	/// </summary>
+	public interface IDynamicParameters
+	{
+		/// <summary>
+		/// Add all the parameters needed to the command just before it executes
+		/// </summary>
+		/// <param name="command">The raw command prior to execution</param>
+		/// <param name="identity">Information about the query</param>
+		void AddParameters(IDbCommand command, Identity identity);
+	}
+
 	/// <summary>
 	/// A bag of parameters that can be passed to the Dapper Query and Execute methods
 	/// </summary>
-	[ContainerRegister(typeof(SqlMapper.IDynamicParameters), RegistrationBehaviors.Default, ScopeBehavior = ScopeBehavior.Singleton)]
-	public class DynamicParameters : SqlMapper.IDynamicParameters
+	[ContainerRegister(typeof(IDynamicParameters), RegistrationBehaviors.Default, ScopeBehavior = ScopeBehavior.Singleton)]
+	public class DynamicParameters : IDynamicParameters
 	{
 		internal const DbType EnumerableMultiParameter = (DbType)(-1);
-		static Dictionary<SqlMapper.Identity, Action<IDbCommand, object>> paramReaderCache = new Dictionary<SqlMapper.Identity, Action<IDbCommand, object>>();
+		static Dictionary<Identity, Action<IDbCommand, object>> paramReaderCache = new Dictionary<Identity, Action<IDbCommand, object>>();
 
 		Dictionary<string, ParamInfo> parameters = new Dictionary<string, ParamInfo>();
 		List<object> templates;
@@ -136,7 +150,7 @@ string name, object value = null, DbType? dbType = null, ParameterDirection? dir
 			return name;
 		}
 
-		void SqlMapper.IDynamicParameters.AddParameters(IDbCommand command, SqlMapper.Identity identity)
+		void IDynamicParameters.AddParameters(IDbCommand command, Identity identity)
 		{
 			AddParameters(command, identity);
 		}
@@ -146,7 +160,7 @@ string name, object value = null, DbType? dbType = null, ParameterDirection? dir
 		/// </summary>
 		/// <param name="command">The raw command prior to execution</param>
 		/// <param name="identity">Information about the query</param>
-		protected void AddParameters(IDbCommand command, SqlMapper.Identity identity)
+		protected void AddParameters(IDbCommand command, Identity identity)
 		{
 			if (templates != null)
 			{

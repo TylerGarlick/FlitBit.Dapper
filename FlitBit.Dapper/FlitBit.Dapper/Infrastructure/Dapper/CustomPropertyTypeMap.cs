@@ -8,8 +8,8 @@ namespace Dapper
     /// <summary>
     /// Implements custom property mapping by user provided criteria (usually presence of some custom attribute with column to member mapping)
     /// </summary>
-    [ContainerRegister(typeof(SqlMapper.ITypeMap), RegistrationBehaviors.Default, ScopeBehavior = ScopeBehavior.Singleton)]
-    public class CustomPropertyTypeMap : SqlMapper.ITypeMap
+    [ContainerRegister(typeof(ITypeMap), RegistrationBehaviors.Default, ScopeBehavior = ScopeBehavior.Singleton)]
+    public class CustomPropertyTypeMap : ITypeMap
     {
         private readonly Type _type;
         private readonly Func<Type, string, PropertyInfo> _propertySelector;
@@ -48,7 +48,7 @@ namespace Dapper
         /// <param name="constructor"></param>
         /// <param name="columnName"></param>
         /// <returns></returns>
-        public SqlMapper.IMemberMap GetConstructorParameter(ConstructorInfo constructor, string columnName)
+        public IMemberMap GetConstructorParameter(ConstructorInfo constructor, string columnName)
         {
             throw new NotSupportedException();
         }
@@ -58,10 +58,10 @@ namespace Dapper
         /// </summary>
         /// <param name="columnName">DataReader column name</param>
         /// <returns>Poperty member map</returns>
-        public SqlMapper.IMemberMap GetMember(string columnName)
+        public IMemberMap GetMember(string columnName)
         {
             var prop = _propertySelector(_type, columnName);
-            return prop != null ? new SimpleMemberMap(columnName, prop) : null;
+            return prop != null ? Create.NewWithParams<IMemberMap>(LifespanTracking.Automatic, Param.FromValue(columnName), Param.FromValue(prop)) : null;
         }
     }
 }

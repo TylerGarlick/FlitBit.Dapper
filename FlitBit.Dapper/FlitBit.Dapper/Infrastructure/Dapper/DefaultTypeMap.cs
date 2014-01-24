@@ -8,10 +8,41 @@ using FlitBit.IoC.Meta;
 namespace Dapper
 {
     /// <summary>
+    /// Implement this interface to change default mapping of reader columns to type memebers
+    /// </summary>
+    public interface ITypeMap
+    {
+        /// <summary>
+        /// Finds best constructor
+        /// </summary>
+        /// <param name="names">DataReader column names</param>
+        /// <param name="types">DataReader column types</param>
+        /// <returns>Matching constructor or default one</returns>
+        ConstructorInfo FindConstructor(string[] names, Type[] types);
+
+        /// <summary>
+        /// Gets mapping for constructor parameter
+        /// </summary>
+        /// <param name="constructor">Constructor to resolve</param>
+        /// <param name="columnName">DataReader column name</param>
+        /// <returns>Mapping implementation</returns>
+        IMemberMap GetConstructorParameter(ConstructorInfo constructor, string columnName);
+
+        /// <summary>
+        /// Gets member mapping for column
+        /// </summary>
+        /// <param name="columnName">DataReader column name</param>
+        /// <returns>Mapping implementation</returns>
+        IMemberMap GetMember(string columnName);
+    }
+
+
+
+    /// <summary>
     /// Represents default type mapping strategy used by Dapper
     /// </summary>
-    [ContainerRegister(typeof(SqlMapper.ITypeMap), RegistrationBehaviors.Default)]
-    public class DefaultTypeMap : SqlMapper.ITypeMap
+    [ContainerRegister(typeof(ITypeMap), RegistrationBehaviors.Default)]
+    public class DefaultTypeMap : ITypeMap
     {
         private readonly List<FieldInfo> _fields;
         private readonly List<PropertyInfo> _properties;
@@ -96,10 +127,10 @@ namespace Dapper
         /// <param name="constructor">Constructor to resolve</param>
         /// <param name="columnName">DataReader column name</param>
         /// <returns>Mapping implementation</returns>
-        public SqlMapper.IMemberMap GetConstructorParameter(ConstructorInfo constructor, string columnName)
+        public IMemberMap GetConstructorParameter(ConstructorInfo constructor, string columnName)
         {
             var parameters = constructor.GetParameters();
-            return Create.NewWithParams<SqlMapper.IMemberMap>(LifespanTracking.Automatic, Param.FromValue(columnName), Param.FromValue(parameters.FirstOrDefault(p => string.Equals(p.Name, columnName, StringComparison.OrdinalIgnoreCase))));
+            return Create.NewWithParams<IMemberMap>(LifespanTracking.Automatic, Param.FromValue(columnName), Param.FromValue(parameters.FirstOrDefault(p => string.Equals(p.Name, columnName, StringComparison.OrdinalIgnoreCase))));
         }
 
         /// <summary>
@@ -107,7 +138,7 @@ namespace Dapper
         /// </summary>
         /// <param name="columnName">DataReader column name</param>
         /// <returns>Mapping implementation</returns>
-        public SqlMapper.IMemberMap GetMember(string columnName)
+        public IMemberMap GetMember(string columnName)
         {
             var property = _properties.FirstOrDefault(p => string.Equals(p.Name, columnName, StringComparison.Ordinal))
                            ?? _properties.FirstOrDefault(p => string.Equals(p.Name, columnName, StringComparison.OrdinalIgnoreCase));

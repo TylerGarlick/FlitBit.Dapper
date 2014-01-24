@@ -4,11 +4,40 @@ using FlitBit.IoC.Meta;
 
 namespace Dapper
 {
+
+    public interface IMemberMap
+    {
+        /// <summary>
+        /// Source DataReader column name
+        /// </summary>
+        string ColumnName { get; }
+
+        /// <summary>
+        ///  Target member type
+        /// </summary>
+        Type MemberType { get; }
+
+        /// <summary>
+        /// Target property
+        /// </summary>
+        PropertyInfo Property { get; }
+
+        /// <summary>
+        /// Target field
+        /// </summary>
+        FieldInfo Field { get; }
+
+        /// <summary>
+        /// Target constructor parameter
+        /// </summary>
+        ParameterInfo Parameter { get; }
+    }
+
     /// <summary>
     /// Represents simple member map for one of target parameter or property or field to source DataReader column
     /// </summary>
-    [ContainerRegister(typeof(SqlMapper.IMemberMap), RegistrationBehaviors.Default)]
-    public class SimpleMemberMap : SqlMapper.IMemberMap
+    [ContainerRegister(typeof(IMemberMap), RegistrationBehaviors.Default)]
+    public class SimpleMemberMap : IMemberMap
     {
         private readonly string _columnName;
         private readonly PropertyInfo _property;

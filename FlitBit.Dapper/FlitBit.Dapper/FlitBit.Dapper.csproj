@@ -51,7 +51,7 @@
       <HintPath>..\packages\FlitBit.Wireup.3.1.0\lib\net40\FlitBit.Wireup.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.4.5.11\lib\net40\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\packages\Newtonsoft.Json.5.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -70,6 +70,7 @@
     <Compile Include="Infrastructure\Dapper\DbString.cs" />
     <Compile Include="Infrastructure\Dapper\DefaultTypeMap.cs" />
     <Compile Include="Infrastructure\Dapper\DynamicParameters.cs" />
+    <Compile Include="Infrastructure\Dapper\Identity.cs" />
     <Compile Include="Infrastructure\Dapper\SimpleMemberMap.cs" />
     <Compile Include="Infrastructure\Dapper\SqlMapper.cs" />
     <Compile Include="Infrastructure\Dto\IConstructorFinder.cs" />

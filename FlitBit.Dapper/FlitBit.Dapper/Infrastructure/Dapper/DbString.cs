@@ -4,11 +4,25 @@ using FlitBit.IoC.Meta;
 
 namespace Dapper
 {
+
+    /// <summary>
+    /// Implement this interface to pass an arbitrary db specific parameter to Dapper
+    /// </summary>
+    public interface ICustomQueryParameter
+    {
+        /// <summary>
+        /// Add the parameter needed to the command before it executes
+        /// </summary>
+        /// <param name="command">The raw command prior to execution</param>
+        /// <param name="name">Parameter name</param>
+        void AddParameter(IDbCommand command, string name);
+    }
+
     /// <summary>
     /// This class represents a SQL string, it can be used if you need to denote your parameter is a Char vs VarChar vs nVarChar vs nChar
     /// </summary>
-    [ContainerRegister(typeof(SqlMapper.ICustomQueryParameter), RegistrationBehaviors.Default)]
-    public class DbString : SqlMapper.ICustomQueryParameter
+    [ContainerRegister(typeof(ICustomQueryParameter), RegistrationBehaviors.Default)]
+    public class DbString : ICustomQueryParameter
     {
         /// <summary>
         /// Create a new DbString
