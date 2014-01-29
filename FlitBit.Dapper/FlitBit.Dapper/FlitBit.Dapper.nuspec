@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <version>$version$</version>
+    <authors>Tyler Garlick</authors>
+    <owners>Tyler Garlick</owners>
+    <id>FlitBit.Dapper</id>
+    <title>FlitBit Dapper</title>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Modification of Dapper's library to utilize FlitBit.Dto Framework and the FlitBit.IoC</description>
+    <dependencies>
+      <dependency id="FlitBit.IoC" version="2.13.1" />
+      <dependency id="FlitBit.Dto" version="2.5.0" />
+    </dependencies>
+  </metadata>
+  <files />
+</package>
