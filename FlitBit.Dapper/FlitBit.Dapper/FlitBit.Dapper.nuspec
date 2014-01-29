@@ -9,9 +9,9 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Modification of Dapper's library to utilize FlitBit.Dto Framework and the FlitBit.IoC</description>
     <dependencies>
-      <dependency id="FlitBit.IoC" version="2.13.1" />
-      <dependency id="FlitBit.Dto" version="2.5.0" />
+      <dependency id="FlitBit.IoC" />
+      <dependency id="FlitBit.Dto" />
     </dependencies>
   </metadata>
-  <files />
+  <files/>
 </package>
