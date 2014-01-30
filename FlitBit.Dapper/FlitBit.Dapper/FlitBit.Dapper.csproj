@@ -64,7 +64,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Db.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="ExternalWireup\Dependency.FlitBit.Dto.cs" />
     <Compile Include="ExternalWireup\Dependency.FlitBit.IoC.cs" />
